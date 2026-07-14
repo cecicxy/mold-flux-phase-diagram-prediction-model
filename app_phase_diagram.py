@@ -22,13 +22,19 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 # ── matplotlib 中文字体 ──────────────────────────────────────────────────────
-for _f in ["Heiti SC", "Hiragino Sans GB", "Arial Unicode MS", "PingFang SC"]:
+# 优先用随仓库打包的开源字体 Noto Sans CJK SC（云端 Linux 无中文字体，靠它避免乱码）
+from matplotlib import font_manager as _fm
+_bundled = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts", "NotoSansSC-Regular.otf")
+_FONT = None
+if os.path.exists(_bundled):
     try:
-        matplotlib.font_manager.findfont(_f, fallback_to_default=False)
-        plt.rcParams["font.sans-serif"] = [_f] + plt.rcParams["font.sans-serif"]
-        break
+        _fm.fontManager.addfont(_bundled)
+        _FONT = _fm.FontProperties(fname=_bundled).get_name()
     except Exception:
-        continue
+        _FONT = None
+plt.rcParams["font.sans-serif"] = ([_FONT] if _FONT else []) + [
+    "Heiti SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "WenQuanYi Micro Hei", "Noto Sans CJK SC", "DejaVu Sans"]
 plt.rcParams["axes.unicode_minus"] = False
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
