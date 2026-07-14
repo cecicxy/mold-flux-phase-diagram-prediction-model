@@ -1,0 +1,11 @@
+# 保护渣相图预测网页 —— 运行时依赖（精简版）
+# ⚠ 版本上限很关键：pandas 3 / pyarrow 20+ 在 Apple Silicon 上会触发
+#   pyarrow 多线程段错误(streamlit 刷新即崩, 退出码 139)。勿随意放宽。
+streamlit>=1.30
+pandas>=2.2,<3
+pyarrow>=17,<20
+numpy>=1.23
+scikit-learn>=1.9,<1.10        # 模型用 1.9 训练保存，保持相近版本以兼容 joblib 加载
+joblib>=1.2
+matplotlib>=3.5
+openpyxl>=3.0                  # 读取预设样本 xlsx（可选）
