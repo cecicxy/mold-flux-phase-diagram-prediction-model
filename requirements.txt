@@ -7,6 +7,7 @@ pyarrow>=17,<20
 numpy>=1.23
 scikit-learn>=1.9,<1.10        # 模型用 1.9 训练保存，保持相近版本以兼容 joblib 加载
 joblib>=1.2
+catboost>=1.2,<1.3             # 正向模型 forward_them/visc 是 CatBoost；与训练版本(1.2.10)一致以兼容 joblib 加载
 scipy>=1.9                     # 反向设计差分进化 (agent_tools.inverse_design)
 openai>=1.40                   # Agent LLM function-calling（DeepSeek / OpenAI 兼容）
 langgraph>=0.2                 # Agent 状态图编排 (planner↔executor)
