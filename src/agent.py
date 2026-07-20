@@ -192,12 +192,23 @@ def run(user_text, history=None):
 
     sys_msg = {"role": "system", "content": SYSTEM_PROMPT + _inject_rag(user_text)}
     messages = [sys_msg] + (history or []) + [{"role": "user", "content": user_text}]
-    out = _graph().invoke({"messages": messages, "trace": []},
-                          config={"recursion_limit": 4 * MAX_STEPS})
-    last = out["messages"][-1]
-    reply = last.get("content") or "(模型未返回文本，请查看下方工具调用轨迹)"
-    return {"reply": reply, "trace": out.get("trace", []),
-            "mode": f"LLM function-calling · {MODEL} · RAG={rag_mode()}"}
+    try:
+        out = _graph().invoke({"messages": messages, "trace": []},
+                              config={"recursion_limit": 4 * MAX_STEPS})
+        last = out["messages"][-1]
+        reply = last.get("content") or "(模型未返回文本，请查看下方工具调用轨迹)"
+        return {"reply": reply, "trace": out.get("trace", []),
+                "mode": f"LLM function-calling · {MODEL} · RAG={rag_mode()}"}
+    except Exception as e:
+        # LLM 调用失败（鉴权 / 端点 / 模型名 / 网络）—— 把真实错误显示出来，并临时退回离线规则路由
+        reply_off, trace_off = _mock_route(user_text)
+        err = f"{type(e).__name__}: {str(e)[:400]}"
+        reply = (f"⚠️ **LLM 调用失败**，已临时改用离线规则路由给出结果。\n\n"
+                 f"`{err}`\n\n"
+                 f"请检查 Secrets：`OPENAI_API_KEY` / `OPENAI_BASE_URL` / `AGENT_LLM_MODEL`"
+                 f"（当前 model=`{MODEL}`，base_url=`{os.environ.get('OPENAI_BASE_URL','(未设→走 OpenAI 官方)')}`）。\n\n"
+                 f"---\n\n{reply_off}")
+        return {"reply": reply, "trace": trace_off, "mode": f"LLM 失败→离线路由 · {MODEL}"}
 
 
 if __name__ == "__main__":

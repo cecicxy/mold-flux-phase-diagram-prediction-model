@@ -25,6 +25,16 @@ from src import agent
 
 st.set_page_config(page_title="保护渣设计 Agent", page_icon="🤖", layout="wide")
 
+# LLM 配置：把 Streamlit Secrets 桥接到环境变量（openai client 只读 env；
+# 即便 Cloud 已注入，setdefault 也是空操作，纯粹兜底）
+for _k in ("OPENAI_API_KEY", "OPENAI_BASE_URL", "AGENT_LLM_MODEL"):
+    try:
+        _v = st.secrets.get(_k)
+    except (FileNotFoundError, KeyError):
+        _v = None
+    if _v:
+        os.environ.setdefault(_k, str(_v))
+
 if not check_password():
     st.stop()
 
