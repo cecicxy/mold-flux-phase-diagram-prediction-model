@@ -9,3 +9,6 @@ scikit-learn>=1.9,<1.10        # 模型用 1.9 训练保存，保持相近版本
 joblib>=1.2
 matplotlib>=3.5
 openpyxl>=3.0                  # 读取预设样本 xlsx（可选）
+scipy>=1.9                     # 反向设计差分进化 (agent_tools.inverse_design)
+openai>=1.40                   # Agent LLM function-calling（DeepSeek / OpenAI 兼容）
+langgraph>=0.2                 # Agent 状态图编排 (planner↔executor)
