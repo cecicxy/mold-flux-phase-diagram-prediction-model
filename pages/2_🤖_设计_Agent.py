@@ -1,66 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-保护渣设计 Agent —— 自然语言对话界面 (Streamlit)
-=================================================
-启动: .venv/bin/streamlit run app_agent.py
-  • 配了 OPENAI_API_KEY   → 真 LLM function-calling 多步 Agent (LangGraph)
-  • 没配                  → 规则路由离线模式，仍可端到端演示工具链
+保护渣设计 Agent —— 自然语言对话界面 (Streamlit 多页应用的第二页)
+===============================================================
+启动（与相图首页同一应用）：streamlit run app_phase_diagram.py
+侧栏会自动出现「🤖 设计 Agent」入口。
 
-和 app_phase_diagram.py 互补：
-  app_phase_diagram.py = 表单式精确输入（适合工程师确定性查相图）
-  app_agent.py         = 对话式（适合"帮我设计一个…"这类模糊、多步需求）
+  • 配了 OPENAI_API_KEY（兼容端点，如 DeepSeek）→ 真 LLM function-calling 多步 Agent
+  • 没配                                          → 规则路由离线模式，仍可演示工具链
+
+和首页 app_phase_diagram.py 互补：
+  首页  = 表单式精确输入（适合工程师确定性查相图）
+  本页  = 对话式（适合「帮我设计一个…」这类模糊、多步需求）
 """
 import os
 import sys
-import uuid
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.abspath(__file__))   # .../deploy/pages
+ROOT = os.path.dirname(HERE)                          # .../deploy
 sys.path.insert(0, ROOT)
 
 import streamlit as st
+from _auth import check_password
 from src import agent
 
 st.set_page_config(page_title="保护渣设计 Agent", page_icon="🤖", layout="wide")
 
-
-# ── 密码保护（云端部署用，Secrets 里设 APP_PASSWORD；本地不设则不锁）─────────
-def check_password():
-    import hmac
-    try:
-        configured = st.secrets.get("APP_PASSWORD", "")
-    except (FileNotFoundError, KeyError):
-        configured = ""
-    if not configured:
-        return True
-    if st.session_state.get("_authenticated"):
-        return True
-    st.title("🔐 保护渣设计 Agent")
-    st.caption("此应用受密码保护，请输入访问密码。")
-    with st.form("login_form"):
-        entered = st.text_input("访问密码", type="password", autocomplete="current-password")
-        submitted = st.form_submit_button("进入应用", type="primary")
-    if submitted:
-        if hmac.compare_digest(str(entered), str(configured)):
-            st.session_state["_authenticated"] = True
-            st.rerun()
-        else:
-            st.error("密码错误，请重试。")
-    return False
-
-
 if not check_password():
     st.stop()
-
-
-# ── LLM 配置：优先读 Streamlit Secrets，回退环境变量（云端在此注入 key）───────
-for _k in ("OPENAI_API_KEY", "OPENAI_BASE_URL", "AGENT_LLM_MODEL"):
-    try:
-        _v = st.secrets.get(_k)
-    except (FileNotFoundError, KeyError):
-        _v = None
-    if _v:
-        os.environ.setdefault(_k, str(_v))
-
 
 st.title("🤖 保护渣智能设计 Agent")
 st.caption("自然语言驱动：成分性质预测 · 相图推理 · 反向配方设计 · 领域知识问答")
@@ -76,11 +42,6 @@ with st.sidebar:
     else:
         st.warning("未检测到 OPENAI_API_KEY，当前为**规则路由离线模式**（不调 LLM，"
                    "按关键词选工具）。配置后即切换为真正的 function-calling Agent。")
-        with st.expander("如何接入 LLM"):
-            st.code("export OPENAI_API_KEY=sk-xxxx\n"
-                    "# 可选：OpenAI 兼容端点（DeepSeek / Moonshot / 自建 vLLM）\n"
-                    "# export OPENAI_BASE_URL=https://api.deepseek.com/v1\n"
-                    "# export AGENT_LLM_MODEL=deepseek-chat", language="bash")
     try:
         from src.agent_rag import mode as rag_mode
         st.caption(f"RAG 检索：{rag_mode()}")

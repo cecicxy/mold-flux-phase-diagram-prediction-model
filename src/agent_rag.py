@@ -55,6 +55,12 @@ def _has_openai():
     return bool(os.environ.get("OPENAI_API_KEY"))
 
 
+def _embedding_endpoint_ok():
+    """DeepSeek 等 OpenAI 兼容端点不提供 /embeddings，直接跳过避免每次冷启 404 噪声。"""
+    base = (os.environ.get("OPENAI_BASE_URL") or "").lower()
+    return "deepseek" not in base
+
+
 def _build_openai():
     from openai import OpenAI
     client = OpenAI()
@@ -76,7 +82,7 @@ def _ensure():
     if _INDEX is not None:
         return
     cache = os.path.join(ROOT, "data", "rag_index.npz")
-    if _has_openai():
+    if _has_openai() and _embedding_endpoint_ok():
         try:
             vecs = None
             if os.path.exists(cache):

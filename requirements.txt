@@ -1,4 +1,4 @@
-# 保护渣相图预测网页 —— 运行时依赖（精简版）
+# 保护渣相图预测 + 设计 Agent 网页 —— 运行时依赖（精简版）
 # ⚠ 版本上限很关键：pandas 3 / pyarrow 20+ 在 Apple Silicon 上会触发
 #   pyarrow 多线程段错误(streamlit 刷新即崩, 退出码 139)。勿随意放宽。
 streamlit>=1.30
