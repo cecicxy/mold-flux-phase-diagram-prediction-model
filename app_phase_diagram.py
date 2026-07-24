@@ -47,7 +47,7 @@ DEFAULTS = {                                    # 典型保护渣成分 (wt%)
     "TiO2": 0.5, "MnO": 0.5, "Fe2O3": 2.0, "BaO": 0.0,
 }
 
-st.set_page_config(page_title="保护渣相图预测", page_icon="🔬", layout="wide")
+st.set_page_config(page_title="Steel Mold Flux Domain Expert Agent", page_icon="🔬", layout="wide")
 
 
 # ── 可选密码保护（云端部署时在平台 Secrets 里设置 APP_PASSWORD）───────────────
@@ -63,7 +63,7 @@ def check_password():
     if st.session_state.get("_authenticated"):
         return True
 
-    st.title("🔐 保护渣相图预测")
+    st.title("🔐 Steel Mold Flux Domain Expert Agent")
     st.caption("此应用受密码保护，请输入访问密码。")
     with st.form("login_form"):
         entered = st.text_input("访问密码", type="password", autocomplete="current-password")
@@ -313,7 +313,7 @@ peak_liq = float(liq_curve.max())
 # ════════════════════════════════════════════════════════════════════════════
 # 主区域
 # ════════════════════════════════════════════════════════════════════════════
-st.title("🔬 保护渣相图预测")
+st.title("🔬 Steel Mold Flux Domain Expert Agent")
 st.caption("基于相图代理模型（MLP），输入化学成分即可秒级预测各相体积分数随温度的变化，替代昂贵的 Thermo-Calc 计算。")
 
 c1, c2, c3, c4 = st.columns(4)
